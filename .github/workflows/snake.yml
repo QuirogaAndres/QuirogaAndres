@@ -1,0 +1,33 @@
+name: generar snake de contribuciones
+
+on:
+  schedule:
+    - cron: "0 5 * * *"   # se regenera todos los dias a las 05:00 UTC
+  workflow_dispatch:        # tambien puedes correrlo manualmente desde la pestaña Actions
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  generar-snake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generar animaciones (svg + gif)
+        uses: Platane/snk@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+            dist/github-contribution-grid-snake.gif
+
+      - name: Publicar en la rama "output"
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: output
+          publish_dir: ./dist
+          commit_message: "chore: actualizar snake de contribuciones [skip ci]"
